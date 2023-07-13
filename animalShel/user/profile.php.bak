@@ -1,0 +1,181 @@
+<?php
+    session_start();
+
+    if (!isset($_SESSION['SESSION_EMAIL'])) {
+        header("Location: login.php");
+        exit();
+    }
+
+    include '../includes/connection.php';
+
+    // Retrieve user details from the database
+    $email = $_SESSION['SESSION_EMAIL'];
+    $query = mysqli_query($conn, "SELECT * FROM users WHERE email='$email'");
+
+    if (mysqli_num_rows($query) > 0) {
+        $row = mysqli_fetch_assoc($query);
+        $name = $row['name'];
+        // Add other user details you want to display
+
+        // Handle update form submission
+        if (isset($_POST['update'])) {
+            // Retrieve updated user details from the form
+            $newName = mysqli_real_escape_string($conn, $_POST['name']);
+            // Update the user's details in the database
+            $updateQuery = mysqli_query($conn, "UPDATE users SET name='$newName' WHERE email='$email'");
+
+            if ($updateQuery) {
+                // Display success message or perform any other actions
+                echo "<div class='alert alert-success'>Profile updated successfully.</div>";
+                $name = $newName; // Update the $name variable with the new name
+            } else {
+                // Display error message or handle the error appropriately
+                echo "<div class='alert alert-danger'>Failed to update profile.</div>";
+            }
+        }
+
+        // Handle delete button click
+        if (isset($_POST['delete'])) {
+            // Perform necessary actions to delete the user's account and associated data
+            // ...
+
+            // Redirect the user to the logout page or any other appropriate action
+            header("Location: logout.php");
+            exit();
+        }
+    } else {
+        // Handle the case when the user is not found in the database
+        echo "<div class='alert alert-danger'>User not found.</div>";
+        exit(); // Terminate further execution of the page
+    }
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+
+    <style>
+      
+
+      body {
+        background-color: mistyrose;
+      }
+
+      /* Reset default margin and padding */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* Style the header */
+header {
+  
+  padding: 20px;
+}
+
+header h1 {
+  font-size: 24px;
+}
+
+nav ul {
+  list-style-type: none;
+  text-align: right;
+}
+
+nav ul li {
+  display: inline;
+  margin-right: 10px;
+
+}
+
+nav ul li a {
+  color: black;
+  text-decoration: none;
+}
+
+/* Style the section */
+section {
+  padding: 20px;
+}
+
+section h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+/* Style the footer */
+footer {
+  background-color: #333;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+
+.image-container {
+  display: flex;
+  justify-content: center;
+}
+
+.image-container img {
+  max-width: 100%;
+  height: auto;
+}
+
+    </style>
+
+
+</head>
+<body>
+    
+
+<header>
+  <div>
+    <h1>PawFriend Animal Rescue</h1>
+  </div>
+  <div>
+  <nav>
+      <ul>
+        <li><a href="userdashboard.php">Home</a></li>
+        <li><a href="profile.php">Profile</a></li>
+        <li><a href="animal-shelter.php">Animal Shelter</a></li>
+        <li><a href="volunteering.php">Volunteering</a></li>
+        <li><a href="donation.php">Donation</a></li><br>
+
+      </ul>
+    </nav>
+  </div>
+    
+    <br>
+    <hr>
+</header>
+
+<body>
+    <h1>Welcome, <?php echo $name; ?></h1>
+
+    <h2>User Details</h2>
+    <p>Name: <?php echo $name; ?></p>
+    <!-- Display other user details here -->
+
+    <h2>Update Profile</h2>
+    <form action="" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="<?php echo $name; ?>" required>
+        <!-- Add other input fields for updating user details -->
+
+        <input type="submit" name="update" value="Update">
+    </form>
+
+    <h2>Delete Account</h2>
+    <p>Deleting your account is irreversible. Are you sure you want to proceed?</p>
+    <form action="" method="post" onsubmit="return confirm('Are you sure you want to delete your account?');">
+        <input type="submit" name="delete" value="Delete">
+    </form>
+
+    <!-- Add your HTML content and styling here -->
+<footer>
+    <p>© 2023 PawFriend Animal Rescue. All rights reserved.</p>
+ </footer>
+</body>
+</html>
